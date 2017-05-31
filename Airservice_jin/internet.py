@@ -2,6 +2,10 @@ from http.client import HTTPConnection
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.request
 import xml.etree.ElementTree as etree
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 def timesearch():
     time=input("시간대를 입력하세요")
@@ -34,12 +38,6 @@ def airline():
     root=etree.fromstring(data)
     print("          운항정보")
 
-    for child in root.iter("response"):
-        no=child.find('totalCount')
-        if(no==None):
-
-            print("\n          해당 지역은 운행 정보가 없습니다.\n")
-
     for child in root.iter("item"):
         airlin=child.find('airlineKorean').text
         start=child.find('startcity').text
@@ -70,11 +68,6 @@ def oversea():
 
     print("          운항정보")
 
-    for child in root.iter("response"):
-        no = child.find('totalCount')
-        if (no == None):
-            print("\n          해당 지역은 운행 정보가 없습니다.\n")
-
     for child in root.iter("item"):
         airlin=child.find('airlineKorean').text
         start=child.find('boardingKor').text
@@ -98,6 +91,8 @@ def line():
     url = 'http://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList?ServiceKey=' + key + \
           "&schStTime=" + time + '&schEdTime=2400&schLineType=D&schAirCode='+code
     data = urllib.request.urlopen(url).read()
+    b='운항정보\n'
+
     # d = str(data,"utf-8")
     root = etree.fromstring(data)
     for child in root.iter("item"):
@@ -105,8 +100,44 @@ def line():
         start = child.find('boardingKor').text
         end = child.find('arrivedKor').text
         stime = child.find('std').text
+        
+        
+        a='항공사='+airlin+'\n출발시간 = ' + stime + '\n출발공항 = ' + start + '\n도착공항 = ' + end+\
+          '\n=======================================================\n'
 
-        print('항공사 = ' + airlin +
-              '\n출발시간 = ' + stime + '\n출발공항 = ' + start + '\n도착공항 = ' + end)
-        print('=======================================================')
+        b+=a
+    print(b)
+    select =input("항공 정보를 메일로 보내시겠습니까? Y/N")
+    if(select=='Y'):
+        mail(b)
 
+
+def mail(a):
+    body=a
+    gmail_user=input("구글 계정 ID :")
+    gmail_pw=input('구글 계정 pass : ')
+    #gmail_user = 'wlsdndnjs@gmail.com'  # 실제 google 로그인할 때 쓰는 ID
+    # #gmail_pw = 'wlsdndnjs12@'    # 실제 google 로그인할 때 쓰는 Password
+    from_addr = 'wlsdndnjs@gmail.com'   # 보내는 사람 주소
+    to_addr=input("보낼 이메일 주소")
+    # to_addr = 'wlsdndnjs12@naver.com'      # 받는 사람 주소
+    msg=MIMEMultipart('alternative')
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'Send email with Gmail'     # 제목
+    msg.attach(MIMEText(body, 'plain', 'utf-8')) # 내용 인코딩
+
+    ########################
+    # https://www.google.com/settings/security/lesssecureapps
+    # Make sure less_secure_apps select 'use'
+    ########################
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.login(gmail_user, gmail_pw)
+        server.sendmail(from_addr, to_addr, msg.as_string())
+        server.quit()
+        print('successfully sent the mail')
+    except BaseException as e:
+        print("failed to send mail", str(e))
