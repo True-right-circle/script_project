@@ -8,11 +8,11 @@ def mail():
     body=a
     gmail_user=input("구글 계정 ID :")
     gmail_pw=input('구글 계정 pass : ')
-    #gmail_user = 'wlsdndnjs@gmail.com'  # 실제 google 로그인할 때 쓰는 ID
-    # #gmail_pw = 'wlsdndnjs12@'    # 실제 google 로그인할 때 쓰는 Password
+    #gmail_user = '.com'  # 실제 google 로그인할 때 쓰는 ID
+    # #gmail_pw = ''    # 실제 google 로그인할 때 쓰는 Password
     from_addr = 'wlsdndnjs@gmail.com'   # 보내는 사람 주소
     to_addr=input("보낼 이메일 주소")
-    # to_addr = 'wlsdndnjs12@naver.com'      # 받는 사람 주소
+    # to_addr = '@naver.com'      # 받는 사람 주소
     msg=MIMEMultipart('alternative')
     msg['From'] = from_addr
     msg['To'] = to_addr
