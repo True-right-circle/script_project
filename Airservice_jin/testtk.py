@@ -31,4 +31,4 @@ def InitSearchListBox():
 
 InitTopText()
 InitSearchListBox()
-g_Tk.mainloop()
+g_Tk.mainloop() 
